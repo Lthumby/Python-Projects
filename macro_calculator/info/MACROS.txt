@@ -1,0 +1,16 @@
+
+ MACROS:
+-------------------------
+ Protein: 
+ Fats: 
+ Carbs: 
+-------------------------
+
+ MACROS VIEWED AS CALORIES
+-------------------------
+ PROTEIN: calories
+ FAT: calories
+ CARBS: calories
+-------------------------
+ TOTAL CALORIES:
+ 

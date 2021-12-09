@@ -1,0 +1,16 @@
+
+user_weight = lbs
+user_height = inches
+user_age = y/o
+
+user_BMR =  calories
+user_surplus = +300
+user_fat% = 25% of calories
+
+
+Where did I get the calculations?
+---------------------------------
+LINK: https://www.youtube.com/watch?v=g8nFi6gCTYc
+
+
+						
