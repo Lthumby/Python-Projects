@@ -1,30 +1,35 @@
 
 
-from cmath import cos
-from shutil import ExecError
-from tokenize import Double, String
-from unicodedata import decimal
 
+from shutil import ExecError
+from tempfile import TemporaryFile
+from urllib.request import proxy_bypass
+import multiprocessing
+import os
 
 class Calculate:
-    def __init__(self): 
-        self.deductable = int(input("Enter Deductable: "))
+    def __init__(self):
+        # basic inputs
+        '''self.deductable = int(input("Enter Deductable: "))
         self.coInsurance = input("Enter Co-Insurance Split (0.0,0.0): ")
         self.visits = int(input("Enter # of visits: "))
-        self.visitCost = str(input("Enter visit costs (100,100,100,100): "))
-        self.coPays = str(input("Enter all copays ($25,$25,$25): "))
-        self.stopLoss = False
-        '''self.deductable = 500
+        self.visitCost = str(input("Enter visit costs (0,0,0,0): "))
+        self.coPays = str(input("Enter all copays (0,0,0,0): "))
+        self.stopLoss = int(input("Enter Stop-Loss: "))'''
+        # debug inputs
+        self.deductable = 500
+        self._deductable = self.deductable
         self.coInsurance = "0.8,0.2"
         self.visits = 4
         self.visitCost = "250,1200,400,800"
-        self.coPays = "25,50,50,100"'''
-        self.stopLoss = False
-        # Gathering total copays
+        self.coPays = "25,50,50,100"
+        self.stopLoss = 0
+        self.newCost = []
+        # Co-Pay Map
         cpay = self.coPays.split(",")
         cpayMap = map(int, cpay)
         self.coPay = list(cpayMap) # <- list of all copays
-        # Gathering total vist costs
+        # Visit Costs Map
         vcosts = self.visitCost.split(",")
         visitMap = map(int, vcosts)
         self.visitCosts = list(visitMap) # <- list of all visit costs
@@ -37,55 +42,61 @@ class Calculate:
         self.youTotal = 0
         self.insureTotal = 0
 
+        # Co-Pay = self.coPay (list)
+        # Visit Cost = self.visitCosts (list)
+        # Co-Insurance Split = self.coSplit (list)
 
 
-        def splitCalcs(deductable, coSplit, vCosts, vNum, coPay, billStart):
+        def coPayTotal(coPay):
             total = 0
-            bIndex = billStart * coSplit
-            youCosts = 0
-           # print(bIndex, "bindex")
-            for x in range(len(vCosts)):
-                try:
-                    youCost = vCosts[x + 1] * coSplit
-                    youCosts = youCosts + youCost
-                except Exception as e:
-                    pass
-                
-            total = total + bIndex + youCosts
-            return total
+            for x in range(len(coPay)):
+                #print(x)
+                total = total + coPay[x]
+            return int(total)
             
+        def deductableCalc(deductable, visitCost):
 
-        def calcs(deductable, coSplit, vCosts, vNum, coPay):
-            
-            for copays in coPay: # grabs total copay
-                self.coPayTotal = self.coPayTotal + copays
-            for visits in range(vNum): 
-                
+            #print(deductable, visitCost)
+            for x in range(len(visitCost)):
                 if deductable > 0:
-                    try:   
-                        if deductable - vCosts[visits] <= 0:
+                    try:
+                        if deductable - visitCost[x] <= 0:
                             pass
                         else:
-                            deductable = deductable - vCosts[visits]
-                           
-                            self.visitCosts.remove(vCosts[visits])
-                            
+                            deductable = deductable - visitCost[x]
+                            visitCost.remove(visitCost[x])
+                            #print(deductable, visitCost)
                     except Exception as e:
-                        print("ERROR CALCULATING DEDUCTABLE")
+                        pass
+            billStart = visitCost[0] - deductable
+            return billStart # returns next visitCost - what is left of deductable
 
-                billStart = self.visitCosts[0] - deductable
-                youData = splitCalcs(self.deductable, self.coSplit[1], self.visitCosts, self.visits, self.coPay, billStart)
-                youTotal = youData + self.deductable + self.coPayTotal
-                self.youTotal = youTotal
-                insureData = splitCalcs(self.deductable, self.coSplit[0], self.visitCosts, self.visits, self.coPay, billStart)
-                self.insureTotal = insureData
-
-            
-
-        calcs(self.deductable, 0.2, self.visitCosts, self.visits, self.coPay)
-        print("User:",self.youTotal)
-        print("Insurance: ",self.insureTotal)
+        def splitCalc(coSplit, stopLoss, deductable, visitCost, user, coPay):
+            bill = deductableCalc(deductable, visitCost)
+            total = 0
+            cPay = coPayTotal(coPay)
+            # grabs first index split
+            billStart = bill * coSplit 
+            #print(billStart)
+            for x in range(len(visitCost)):
+                try:
+                    allCosts = visitCost[x + 1] * coSplit
+                    total += allCosts
+                except:
+                    pass
+            if user == True:
+                total += deductable + cPay  
+            total += billStart
+            return total
         
+        # To prevent corrupted {self.visitCosts} list
+        for x in range (len(self.visitCosts)):
+            self.newCost.append(self.visitCosts[x])
 
-Calculate()
-
+        print("USER:", splitCalc(self.coSplit[1], self.stopLoss, self.deductable, self.visitCosts, True, self.coPay))
+        print("INSURANCE:", splitCalc(self.coSplit[0], self.stopLoss, self.deductable, self.newCost, False, self.coPay))
+        input("\nPress ENTER to exit...")
+        
+if __name__ == "__main__":
+    c = Calculate()
+    
