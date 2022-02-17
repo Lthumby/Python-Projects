@@ -17,12 +17,13 @@ class Calculate:
         self.coPays = str(input("Enter all copays (0,0,0,0): "))
         self.stopLoss = int(input("Enter Stop-Loss: "))'''
         # debug inputs
-        self.deductable = 500
+        self.deductable = 1000
         self._deductable = self.deductable
         self.coInsurance = "0.8,0.2"
-        self.visits = 4
-        self.visitCost = "250,1200,400,800"
-        self.coPays = "25,50,50,100"
+        self.visits = 3
+        self.visitCost = "100,300,400"
+        self.visitCost2 = self.visitCost
+        self.coPays = "25,50,100"
         self.stopLoss = 0
         self.newCost = []
         # Co-Pay Map
@@ -62,12 +63,15 @@ class Calculate:
                     try:
                         if deductable - visitCost[x] <= 0:
                             pass
-                        else:
+                        # problem here: if deductable limit isnt reached, program must ensure insurance doesn't get involved
+                        elif deductable - visitCost[x] > 0:
                             deductable = deductable - visitCost[x]
+                            print(deductable, "<--")
                             visitCost.remove(visitCost[x])
-                            #print(deductable, visitCost)
+                            
                     except Exception as e:
                         pass
+
             billStart = visitCost[0] - deductable
             return billStart # returns next visitCost - what is left of deductable
 
@@ -93,8 +97,21 @@ class Calculate:
         for x in range (len(self.visitCosts)):
             self.newCost.append(self.visitCosts[x])
 
-        print("USER:", splitCalc(self.coSplit[1], self.stopLoss, self.deductable, self.visitCosts, True, self.coPay))
-        print("INSURANCE:", splitCalc(self.coSplit[0], self.stopLoss, self.deductable, self.newCost, False, self.coPay))
+        dTotal = 0
+        dLen = self.visitCost2.split(",")
+        for x in range(len(dLen)):
+            #print(dLen[x])
+            dTotal = dTotal + int(dLen[x])
+
+
+        if dTotal < self.deductable: # checking if all visits are LESS than total deductable
+            cPay = coPayTotal(self.coPay)
+            newTotal = dTotal + cPay
+            print(f"USER: ${newTotal}")
+            print("INSURANCE: $0")
+        else:
+            print("USER:", splitCalc(self.coSplit[1], self.stopLoss, self.deductable, self.visitCosts, True, self.coPay))
+            print("INSURANCE:", splitCalc(self.coSplit[0], self.stopLoss, self.deductable, self.newCost, False, self.coPay))
         input("\nPress ENTER to exit...")
         
 if __name__ == "__main__":
