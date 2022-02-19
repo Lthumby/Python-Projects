@@ -6,26 +6,48 @@ from tempfile import TemporaryFile
 from urllib.request import proxy_bypass
 import multiprocessing
 import os
+import win32console
+
+win32console.SetConsoleTitle("Mr.Naber LOL")
+os.system('mode 40, 20')
+os.system("cls")
+# NORMAL/NO STOPLOSS
 
 class Calculate:
     def __init__(self):
         # basic inputs
-        '''self.deductable = int(input("Enter Deductable: "))
-        self.coInsurance = input("Enter Co-Insurance Split (0.0,0.0): ")
-        self.visits = int(input("Enter # of visits: "))
-        self.visitCost = str(input("Enter visit costs (0,0,0,0): "))
-        self.coPays = str(input("Enter all copays (0,0,0,0): "))
-        self.stopLoss = int(input("Enter Stop-Loss: "))'''
-        # debug inputs
-        self.deductable = 1000
+        self.deductable = int(input(f'''
+ENTER DEDUCTABLE
+----------------
+'''))
         self._deductable = self.deductable
-        self.coInsurance = "0.8,0.2"
-        self.visits = 3
-        self.visitCost = "100,300,400"
+        self.coInsurance = input(f'''
+ENTER CO-INSURANCE SPLIT
+-------0.0,0.0----------
+''')
+        self.visitCost = str(input(f'''
+ENTER VISIT COSTS
+------0,0,0,0-----
+'''))
+        self.visitCost2 = self.visitCost
+        self.coPays = str(input(f'''
+ENTER ALL CO-PAYS
+----0,0,0------
+'''))
+        self.stopLoss = int(input(f'''
+ENTER STOPLOSS
+----0 if none----
+'''))
+        self.newCost = []
+        # debug inputs
+        '''self.deductable = 5000
+        self._deductable = self.deductable
+        self.coInsurance = "0.7,0.3"
+        self.visitCost = "3000,800,8000"
         self.visitCost2 = self.visitCost
         self.coPays = "25,50,100"
         self.stopLoss = 0
-        self.newCost = []
+        '''
         # Co-Pay Map
         cpay = self.coPays.split(",")
         cpayMap = map(int, cpay)
@@ -63,15 +85,14 @@ class Calculate:
                     try:
                         if deductable - visitCost[x] <= 0:
                             pass
-                        # problem here: if deductable limit isnt reached, program must ensure insurance doesn't get involved
+                        # problem here: if deductable limit isnt reached, program must ensure insurance doesn't get involved !FIXED
                         elif deductable - visitCost[x] > 0:
                             deductable = deductable - visitCost[x]
-                            print(deductable, "<--")
-                            visitCost.remove(visitCost[x])
                             
+                            visitCost.remove(visitCost[x])
                     except Exception as e:
                         pass
-
+            
             billStart = visitCost[0] - deductable
             return billStart # returns next visitCost - what is left of deductable
 
@@ -85,12 +106,15 @@ class Calculate:
             for x in range(len(visitCost)):
                 try:
                     allCosts = visitCost[x + 1] * coSplit
+                    
                     total += allCosts
+                   
                 except:
                     pass
             if user == True:
                 total += deductable + cPay  
             total += billStart
+
             return total
         
         # To prevent corrupted {self.visitCosts} list
@@ -107,13 +131,51 @@ class Calculate:
         if dTotal < self.deductable: # checking if all visits are LESS than total deductable
             cPay = coPayTotal(self.coPay)
             newTotal = dTotal + cPay
-            print(f"USER: ${newTotal}")
-            print("INSURANCE: $0")
+            os.system("cls")
+            print(f'''
+========================================
+|           USER: ${newTotal}           |
+|           INSURANCE: $0               |
+========================================
+                ''')
         else:
-            print("USER:", splitCalc(self.coSplit[1], self.stopLoss, self.deductable, self.visitCosts, True, self.coPay))
-            print("INSURANCE:", splitCalc(self.coSplit[0], self.stopLoss, self.deductable, self.newCost, False, self.coPay))
+            uTotal = splitCalc(self.coSplit[1], self.stopLoss, self.deductable, self.visitCosts, True, self.coPay)
+            iTotal = splitCalc(self.coSplit[0], self.stopLoss, self.deductable, self.newCost, False, self.coPay)
+            cPay = coPayTotal(self.coPay)
+            
+
+            deduct = deductableCalc(self.deductable, self.visitCosts)
+            
+            if self.stopLoss > 0  and self.stopLoss < uTotal: # if there is a stoploss
+                
+                f1 = self.stopLoss + cPay
+                toSub = uTotal - f1
+                uTotal -= toSub
+                iTotal += toSub
+                os.system("cls")
+                print(f'''
+========================================
+|           USER: ${uTotal}            |
+|           INSURANCE: ${iTotal}       |
+========================================
+                ''')
+                
+                
+            else:
+                os.system("cls")
+                print(f'''
+========================================
+|           USER: ${uTotal}            |
+|           INSURANCE: ${iTotal}       |
+========================================
+                ''')
         input("\nPress ENTER to exit...")
+        os.system("cls")
+        #Calculate()
         
 if __name__ == "__main__":
     c = Calculate()
-    
+     
+        
+       
+   
