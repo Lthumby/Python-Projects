@@ -6,7 +6,7 @@ import firebase_admin
 from firebase_admin import firestore
 from firebase_admin import credentials
 import hashlib
-cred = credentials.Certificate(r'C:\Users\lthum\OneDrive\Desktop\passProtect\passprotect-61989-firebase-adminsdk-mbqsl-3a373fec90.json')
+cred = credentials.Certificate(r'path_to_json')
 
 app = firebase_admin.initialize_app(cred)
 
