@@ -105,6 +105,10 @@ CURRENT:
 [*] Desired Path: {path}
               ''')
 
+
+        
+
+
     def auto_download(self):
         username, password, path = self.get_account_data()
         if not username or not password or not path:
@@ -191,10 +195,52 @@ CURRENT:
         os.remove(download_path)
         print("Downloaded ZIP file removed.")
 
+
+        # Open output file
+        
+        abs_path = os.path.abspath(path)
+        
+        # Check if the path exists and is a directory
+        if os.path.exists(abs_path) and os.path.isdir(abs_path):
+            # Use subprocess to open the folder using the default file explorer
+            if os.name == 'nt':  # For Windows
+                subprocess.run(['explorer', abs_path], shell=True)
+            elif os.name == 'posix':  # For macOS and Linux
+                subprocess.run(['xdg-open', abs_path])
+            else:
+                print("Unsupported operating system. Cannot open folder.")
+        else:
+            print("Invalid folder path.")
+
         time.sleep(1)
         print("Exiting Program...")
         time.sleep(0.5)
         exit(1)
+
+    def dummyProgram(self):
+        import random
+        print("Learning Python 101\n\n")
+        print("Welcome to the guessing game")
+        secretNum = random.randint(1,1000)
+        attempts = 0
+        while True:
+            guess = int(input("Guess a number between 1 and 100 <: "))
+            attempts += 1
+
+            if guess == secretNum:
+                print(f"Congratulations! You correctly guessed the number in {attempts} attempts!")
+                break
+            elif guess < secretNum:
+                print("Number is too low, try again")
+                break
+            else:
+                print("Number is too high, try again")
+                break
+            
+        
+
+
+    
 
 if __name__ == "__main__":
     manager = AutoDownloadManager()
@@ -216,6 +262,9 @@ if __name__ == "__main__":
             subprocess.call('cls', shell=True)
             manager.edit_config()
             subprocess.call('cls', shell=True)
+        elif user_select == "codered":
+            subprocess.call('cls', shell=True)
+            manager.dummyProgram()
         else:
             subprocess.call('cls', shell=True)
             print("Invalid option. Please try again.")
