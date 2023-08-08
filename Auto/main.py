@@ -202,11 +202,10 @@ CURRENT:
         
         # Check if the path exists and is a directory
         if os.path.exists(abs_path) and os.path.isdir(abs_path):
-            # Use subprocess to open the folder using the default file explorer
+           
             if os.name == 'nt':  # For Windows
                 subprocess.run(['explorer', abs_path], shell=True)
-            elif os.name == 'posix':  # For macOS and Linux
-                subprocess.run(['xdg-open', abs_path])
+            
             else:
                 print("Unsupported operating system. Cannot open folder.")
         else:
